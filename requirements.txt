@@ -1,0 +1,11 @@
+
+tkinter
+Pillow
+socket
+qrcode
+Flask
+pyautogui
+numpy
+pyaudio
+requests
+concurrent.futures

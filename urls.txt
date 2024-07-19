@@ -1,0 +1,17 @@
+html_template_url=https://gitee.com/petepetehiking/create_squad_tool/raw/master/squad_tool.html
+json_data_url=https://gitee.com/petepetehiking/create_squad_tool/raw/master/cleaned_translated_squad_data.json
+
+icon_url=https://gitee.com/petepetehiking/create_squad_tool/raw/master/squad.png
+
+bing_daily_image_url=https://bing.biturl.top/?resolution=1920&format=image&index=0&mkt=zh-CN
+backup_image_url=https://img2.imgtp.com/2024/05/24/iRP5QnLi.jpg
+
+important_message= 此版本将于7月15日停止服务。现已发布V10版，新增停止建队按钮。由于使用了新代码库，客户端需要重新下载。请在B站或QQ群（513644519）下载最新版，或点击下方按钮进行下载。
+
+window_width=600
+window_height=600
+
+threshold=0.02
+check_duration=90
+
+github_url = https://gitee.com/petepetehiking/create_squad_tool/raw/master/Create_Squad_Tool_old.py

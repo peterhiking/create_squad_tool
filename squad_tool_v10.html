@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="theme-color" content="{{ color }}">  <!-- 动态设置状态栏颜色 -->
+    <title>Squad 快速建队工具</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .background-black {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: {{ color }}; /* 纯黑色背景 */
+            z-index: -3; /* 确保在所有内容的最下面 */
+        }
+
+        .background-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('{{ background_url }}');
+            background-position: center;
+            background-repeat: repeat;
+            background-size: cover;
+            filter: blur(18px);
+            z-index: -2; /* 确保背景覆盖层在黑色层之上 */
+        }
+
+
+        body {
+            position: relative; /* 保证内容在覆盖层之上 */
+            font-family: Arial, sans-serif;
+            padding: 30px;
+            color: white;
+            z-index: 1; /* 确保内容在覆盖层之上 */
+        }
+
+
+        h1 {
+            width: auto;
+            text-align: center;  /* 设置标题居中显示 */
+            color: white;
+        }
+        #text-input {
+            width: 100%;  /* 设置文本输入框宽度为100% */
+            padding: 15px;  /* 设置文本输入框内边距 */
+            font-size: 20px;  /* 设置字体大小 */
+            margin-top: 10px;  /* 设置上边距 */
+            margin-bottom: 20px;  /* 设置下边距 */
+            box-sizing: border-box;  /* 设置盒模型为border-box */
+            border-radius: 8px;  /* 设置边框圆角 */
+            border: 2px solid #ccc;  /* 设置边框样式 */
+            text-align: center;
+        }
+        #repeat-slider {
+            width: 100%;  /* 设置滑块宽度为100% */
+            margin-top: 10px;  /* 设置上边距 */
+            margin-bottom: 20px;  /* 设置下边距 */
+        }
+        #repeat-text {
+            text-align: center;  /* 设置文本居中显示 */
+            font-size: 16px;  /* 设置字体大小 */
+            margin-bottom: 20px;  /* 设置下边距 */
+            color: white;
+        }
+        #send-button {
+            display: block;  /* 设置按钮以块级元素显示 */
+            width: 100%;  /* 设置按钮宽度为100% */
+            padding: 15px;  /* 设置按钮内边距 */
+            font-size: 20px;  /* 设置字体大小 */
+            background-color: #4CAF50;  /* 设置背景颜色 */
+            color: white;  /* 设置字体颜色 */
+            border: none;  /* 取消边框 */
+            border-radius: 8px;  /* 设置边框圆角 */
+            cursor: pointer;  /* 设置鼠标样式为手型 */
+            transition: background-color 0.3s;  /* 设置背景颜色变化的过渡效果 */
+            margin-bottom: 10px;  /* 设置下边距 */
+        }
+        #stop-button {
+            display: block;  /* 设置按钮以块级元素显示 */
+            width: 100%;  /* 设置按钮宽度为100% */
+            padding: 15px;  /* 设置按钮内边距 */
+            font-size: 20px;  /* 设置字体大小 */
+            background-color: #4CAF50;  /* 设置背景颜色 */
+            color: white;  /* 设置字体颜色 */
+            border: none;  /* 取消边框 */
+            border-radius: 8px;  /* 设置边框圆角 */
+            cursor: pointer;  /* 设置鼠标样式为手型 */
+            transition: background-color 0.3s;  /* 设置背景颜色变化的过渡效果 */
+            margin-top: 15px;
+            margin-bottom: 10px;  /* 设置下边距 */
+        }
+        #map-button {
+            display: block;  /* 设置按钮以块级元素显示 */
+            width: 100%;  /* 设置按钮宽度为100% */
+            padding: 15px;  /* 设置按钮内边距 */
+            font-size: 20px;  /* 设置字体大小 */
+            background-color: #1B6FBA;  /* 设置背景颜色 */
+            color: white;  /* 设置字体颜色 */
+            border: none;  /* 取消边框 */
+            border-radius: 8px;  /* 设置边框圆角 */
+            cursor: pointer;  /* 设置鼠标样式为手型 */
+            transition: background-color 0.3s;  /* 设置背景颜色变化的过渡效果 */
+            margin-top: 20px;
+            margin-bottom: 10px;  /* 设置下边距 */
+        }
+        .author {
+            position: fixed;  /* 固定位置 */
+            right: 10px;  /* 距离右侧10像素 */
+            bottom: 10px;  /* 距离底部10像素 */
+            color: grey;  /* 字体颜色 */
+            font-size: 12px;  /* 字体大小 */
+        }
+        .htmlupdatetime {
+            position: fixed;  /* 固定位置 */
+            top:1px;
+            right: 10px;
+            color: white;  /* 字体颜色 */
+            font-size: 10px;  /* 字体大小 */
+        }
+        .jsonupdatetime {
+            position: fixed;  /* 固定位置 */
+            right: 10px;
+            color: white;  /* 字体颜色 */
+            font-size: 10px;  /* 字体大小 */
+        }
+        /* 新增样式 */
+        .note {
+            font-size: 12px;
+            color: white; 
+            padding: 20px;
+            border-radius: 8px;
+            background-color: rgba(0, 0, 0, 0.1); /* 背景色 */
+            backdrop-filter: blur(10px); /* 高斯模糊 */
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        #result {
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            background-color: rgba(255, 255, 255, 0.2);
+            -webkit-backdrop-filter: blur(20px);
+            display: flex; /* 支持两列布局 */
+            justify-content: space-between; /* 两列间留出一些空间 */
+            flex-wrap: wrap; /* 确保内容多时可以正确包裹 */
+            align-items: flex-start; /* 对齐到顶部，防止错开 */
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: flex-start;
+            align-content: flex-start; /* 防止子项在多行之间分散对齐 */
+        }
+        #send_result {
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            background-color: rgba(255, 255, 255, 0.2);
+            -webkit-backdrop-filter: blur(20px);
+            display: flex;
+            justify-content: center; /* 文字水平居中 */
+            align-items: center; /* 文字垂直居中 */
+            flex-wrap: wrap; /* 确保内容多时可以正确包裹 */
+        }
+
+        .team-container {
+            flex: 1; /* 使每个团队容器可以伸缩 */
+            min-width: 100%; /* 最小宽度设置为40%，以便在一行显示两个容器 */
+            max-width: 100%; /* 最大宽度设置为48%，留出一些间隙 */
+            box-sizing: border-box; /* 确保边距和边框包含在宽度内 */
+            margin: 1%; /* 四周留出一些空间 */
+            background: rgba(0, 0, 0, 0.1); /* 轻微背景色 */
+            padding: 10px; /* 内边距 */
+            border-radius: 8px; /* 圆角 */
+            text-align: center; /* 中心对齐文本 */
+            background-color: rgba(0, 0, 0, 0.1); /* 背景色 */
+            backdrop-filter: blur(10px); /* 高斯模糊 */
+        }
+        .team-container h3 {
+            /* 如果需要，可以在这里添加更多的样式 */
+            text-align: center; /* 确保标题文本居中 */
+            margin-top: 0; /* 如果需要的话，可以移除上边距 */
+            color: white;
+        }
+        /* 容器样式 */
+        .form-group {
+            display: flex;  /* 启用 flex 布局 */
+            align-items: center;  /* 垂直居中 */
+            margin-bottom: 20px;  /* 底部留出一些空间 */
+        }
+
+        /* 标签样式 */
+        .form-label {
+            margin-right: 10px;  /* 在标签和选择框之间添加一些空间 */
+            white-space: nowrap;  /* 确保标签不会换行 */
+        }
+        .form-select {
+            width: 100%;
+            padding: 12px 15px; /* 调整padding以使选项栏更加方便点击 */
+            margin-top: 5px;
+            margin-bottom: 10px; /* 给下方元素留出空间 */
+            border-radius: 8px; /* 与页面其他元素的圆角一致 */
+            border: 2px solid #ccc; /* 边框颜色与其他输入框一致 */
+            box-sizing: border-box;
+            -moz-appearance: none; /* 移除 Firefox 默认样式 */
+            -webkit-appearance: none; /* 移除 Safari 和 Chrome 默认样式 */
+            appearance: none; /* 移除默认的箭头 */
+            background-color: rgba(255, 255, 255, 0.8); /* 半透明的白色背景 */
+            color: #333; /* 文字颜色 */
+            font-size: 16px; /* 适当的文字大小 */
+            cursor: pointer; /* 鼠标样式变为手形 */
+            outline: none; /* 移除焦点时的轮廓 */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2); /* 添加轻微阴影效果 */
+            text-align: center; /* 文本居中 */
+            text-align-last: center;
+            flex-grow: 1;  /* 选择框占据剩余空间 */
+        }
+
+        /* 为了使文本居中，添加伪元素来填充 */
+        select::after {
+            content: '\25BC'; /* 添加下拉箭头图标 */
+            font-size: 12px; /* 箭头大小 */
+            right: 10px; /* 箭头位置 */
+            top: calc(50% - 0.5em); /* 垂直居中 */
+            pointer-events: none; /* 防止点击箭头时影响select的功能 */
+            position: absolute; /* 定位 */
+            color: #333; /* 箭头颜色 */
+        }
+
+        /* 自定义选项栏的样式 */
+        option {
+            color: #333; /* 文字颜色 */
+            background: white; /* 背景颜色 */
+            padding: 5px 0; /* 选项的padding */
+        }
+        .status {
+            font-size: 12px;
+            margin-top: 20px;
+            margin-bottom: 5px;
+            color: white;
+            text-align: center;
+        }
+        .not-found {
+            text-align: center;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: rgba(0, 0, 0, 0.1); /* 背景色 */
+            backdrop-filter: blur(10px); /* 高斯模糊 */
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        #image-container {
+            display: flex;
+            max-width: 90%;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .image-button {
+            flex: 1 1 calc(33.33% - 20px);  /* 每个按钮占33.33%的宽度，减去间隙 */
+            padding: 15px;  /* 调整padding以匹配查询载具按钮的高度 */
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-align: center;
+            margin: 5px;  /* 为按钮之间添加一些间隙 */
+            font-size: 18px;  /* 确保字体大小与上面按钮一致 */
+        }
+
+
+        #image-buttons-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start;  /* 按钮左对齐 */
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+
+        #image-display {
+            max-width: 100%;
+            margin: 20px auto;
+            display: none;  /* 初始状态隐藏 */
+            border: 2px solid #ccc;
+            border-radius: 8px;
+        }
+
+
+        *{
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        }
+        html {
+        touch-action: manipulation; /* 禁止双击放大 */
+        -ms-text-size-adjust: 100%; /* IE10 以下禁止用户调整文本大小 */
+        -moz-text-size-adjust: 100%; /* 火狐浏览器禁止用户调整文本大小 */
+        -webkit-text-size-adjust: 100%; /* Safari 和 Chrome 禁止用户调整文本大小 */
+        zoom: 1; /* 禁止用户缩放 */
+        }
+    </style>
+</head>
+<body>
+    <div class="background-black"></div>
+    <div class="background-overlay"></div>
+    <h1>Squad快速建队工具</h1>  <!-- 标题 -->
+    <form id="sendTextForm" method="post">
+        <input type="text" id="text-input" name="text" placeholder="输入队伍名称">
+        <br>
+
+        <div id="information" style="text-align: center; color: white; margin-top: 5px; font-size: 10px;">
+           提示： ` 键无法正确调出控制台时，请于游戏中设置控制台热键为Home键。
+        </div>
+
+        <input type="hidden" id="repeat-times" name="repeat_times" value="100">
+
+        <div id="hotkey-prompt" style="text-align: center; color: white; margin-top: 20px; font-size: 16px;">
+            当前命令台热键: <span id="selected-hotkey">` 键</span>
+        </div>
+
+        <div id="hotkey-buttons" style="display: flex; justify-content: space-between; gap: 10px; margin: 20px auto; max-width: 640px;">
+            <button type="button" onclick="setKeyPressOrder('backquote')" style="flex: 1; padding: 15px; font-size: 20px; background-color: #4CAF50; color: white; border: none; border-radius: 8px; cursor: pointer; transition: background-color 0.3s; margin-right: 5px;"> ` 键</button>
+            <button type="button" onclick="setKeyPressOrder('home')" style="flex: 1; padding: 15px; font-size: 20px; background-color: #4CAF50; color: white; border: none; border-radius: 8px; cursor: pointer; transition: background-color 0.3s; margin-left: 5px;"> Home 键</button>
+        </div>
+
+        <input type="hidden" id="key-press-order" name="key_press_order" value="backquote">
+
+        <div id="delay-prompt" style="text-align: center; color: white; margin-top: 20px; font-size: 16px;">
+            当前输入动作间隔时间: <span id="selected-delay">100 毫秒</span>
+        </div>
+
+        <div id="delay-buttons" style="display: flex; justify-content: space-between; gap: 10px; margin: 20px auto; max-width: 640px;">
+            <button type="button" onclick="setDelayTime(0.01)" style="flex: 1; padding: 15px; font-size: 20px; background-color: #4CAF50; color: white; border: none; border-radius: 8px; cursor: pointer; transition: background-color 0.3s; margin-right: 5px;"> 10 </button>
+            <button type="button" onclick="setDelayTime(0.05)" style="flex: 1; padding: 15px; font-size: 20px; background-color: #4CAF50; color: white; border: none; border-radius: 8px; cursor: pointer; transition: background-color 0.3s; margin-left: 5px;"> 50 </button>
+            <button type="button" onclick="setDelayTime(0.1)" style="flex: 1; padding: 15px; font-size: 20px; background-color: #4CAF50; color: white; border: none; border-radius: 8px; cursor: pointer; transition: background-color 0.3s; margin-left: 5px;"> 100 </button>
+        </div>
+
+        <input type="hidden" id="delay-time" name="delay_time" value="0.1">
+        <div id="send_result">确认信息后请点击开始建队</div>
+        <br>
+        <button type="submit" id="send-button">开始建队</button>
+    </form>
+
+    <form action="/toggle" method="post" id="toggle-button">
+        <input type="submit" id="stop-button" value="停止建队">
+    </form>
+
+    <div class="author">@MOSFET</div>  <!-- 添加的作者信息 -->
+
+    <!-- 快速载具查询标题 -->
+    <h2 style="text-align: center; color: white; margin-top: 40px;">快速载具查询</h2>
+
+    <!-- 地图选择 -->
+    <div class="form-group">
+        <label for="mapSelect" class="form-label" style="color: white; font-size: 18px;">地图:</label>
+        <select id="name" class="form-select" style="width: 100%; padding: 10px; margin-top: 5px; border-radius: 8px;">
+
+            <option value="" disabled selected>选择地图...</option>
+            {map_options}
+        </select>
+    </div>
+
+    <!-- 模式选择 -->
+    <div class="form-group">
+        <label for="modeSelect" class="form-label" style="color: white; font-size: 18px;">模式:</label>
+        <select id="gamemode" class="form-select" style="width: 100%; padding: 10px; margin-top: 5px; border-radius: 8px;">
+
+            <option value="" disabled selected>选择模式...</option>
+            {gamemode_options}
+        </select>
+    </div>
+
+    <!-- 版本选择 -->
+    <div class="form-group">
+        <label for="versionSelect" class="form-label" style="color: white; font-size: 18px;">版本:</label>
+        <select id="version" class="form-select" style="width: 100%; padding: 10px; margin-top: 5px; border-radius: 8px;">
+
+            <option value="" disabled selected>选择版本...</option>
+            {layer_version_options}
+        </select>
+    </div>
+    <!-- 提交按钮保持不变 -->
+    <button onclick="queryMap()" style="display: block; width: 100%; padding: 15px; font-size: 20px; background-color: #4CAF50; color: white; border: none; border-radius: 8px; cursor: pointer; transition: background-color 0.3s; margin-bottom: 10px;">查询载具</button>
+    <button id="map-button" onclick="openMapManualPage()">打开地图手册</button>
+    <div id="results"></div>
+    <button id="map-button" onclick="openSquadlanesPage()">打开刷点手册</button>
+
+    <h2 style="text-align: center; color: white; margin-top: 40px;">载具弱点查询</h2>
+    <!-- 新增的按钮和图片显示区域 -->
+    <div id="image-buttons-container">
+        <!-- 9 个按钮 -->
+        <button class="image-button" onclick="fetchImage('https://i2.mjj.rip/2024/06/06/acd6a70cbcc193f3d9c42258d97fcded.jpeg')">M1A1</button>
+        <button class="image-button" onclick="fetchImage('https://i2.mjj.rip/2024/06/06/a45261cdee0abc21ab64bb533d3670e6.jpeg')">T72B3</button>
+        <button class="image-button" onclick="fetchImage('https://i2.mjj.rip/2024/06/06/eae22ba7e1dc2adf418daed754afa26b.jpeg')">99A</button>
+        <button class="image-button" onclick="fetchImage('https://i2.mjj.rip/2024/06/06/4289cbc528912da145238093acefcc62.jpeg')">豹2</button>
+        <button class="image-button" onclick="fetchImage('https://i2.mjj.rip/2024/06/06/463c508d28e4e8190a296f74e3a16fa3.jpeg')">FV4034</button>
+        <button class="image-button" onclick="fetchImage('https://i2.mjj.rip/2024/06/06/92171df07c3983f1b0ccf3f41e314cf7.jpeg')">T72S</button>
+        <button class="image-button" onclick="fetchImage('https://i2.mjj.rip/2024/06/06/9ab317a97c2d36dbe89bd5240a54119b.jpeg')">T62</button>
+        <button class="image-button" onclick="fetchImage('https://i2.mjj.rip/2024/06/06/79b5cbff5b119d956c4bc8bd8c93b2cc.jpeg')">M60T</button>
+    </div>
+    <!-- 图片显示区域 -->
+    <img id="image-display" src=" " alt="加载中...">
+
+    <div id="note" class="note">
+    注意事项：<br>
+    1. V10及以上版本：加载页面出现地图背景声时点击开始建队最佳。<br>
+    2. 队伍名称请勿包含中文。<br>
+    3. 队伍名称为纯英文或数字时，字母至少3个，数字至少4个。<br>
+    4. 使用教程，BUG反馈：<a target="_blank" href="https://qm.qq.com/cgi-bin/qm/qr?k=O61c4SoVzW2t5AxtAKd11Ug1aet_fdlD&jump_from=webapi&authKey=xkBtwnYO4zmW5WqXqYla+6VAbhPImzqMBbVrluWFf/FPKICN+M1GMBKH4kAEkwcx"><img border="0" src="//pub.idqqimg.com/wpa/images/group.png" alt="丝瓜建队工具交流群" title="丝瓜建队工具交流群"></a><br>
+</div>
+<br>
+    <script>
+        var data = {squad_data};
+        function updateSliderValue(value) {
+            document.getElementById("slider-value").textContent = value;
+        }
+        function openMapManualPage() {
+            window.open("https://squadmaps.com/", "_blank");
+        }
+        function openSquadlanesPage() {
+            window.open("https://squadlanes.com/#map=Narva&layer=RAAS+v1", "_blank");
+        }
+        function setKeyPressOrder(order) {
+            document.getElementById("key-press-order").value = order;
+        }
+        function setDelayTime(time) {
+            document.getElementById("delay-time").value = time;
+            var selectedDelayText;
+            if (time === 0.01) {
+                selectedDelayText = '10 毫秒';
+            } else if (time === 0.05) {
+                selectedDelayText = '50 毫秒';
+            } else {
+                selectedDelayText = '100 毫秒';
+            }
+            document.getElementById("selected-delay").textContent = selectedDelayText;
+        }
+        function queryMap() {
+            const name = document.getElementById('name').value;
+            const gamemode = document.getElementById('gamemode').value;
+            let version = document.getElementById('version').value;
+
+            function findMap(version) {
+                return data.Maps.find(map => map.mapName === name && map.gamemode === gamemode && map.layerVersion === version);
+            }
+
+            let map = findMap(version);
+
+            if (!map && version.length === 2) {
+                version = 'v0' + version.charAt(1);
+                map = findMap(version);
+            }
+
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+
+            if (map) {
+                const team1 = map.team1;
+                const team2 = map.team2;
+
+                function consolidateVehicles(vehicles) {
+                    const vehicleMap = {};
+                    vehicles.forEach(vehicle => {
+                        if (vehicleMap[vehicle.type]) {
+                            vehicleMap[vehicle.type] += vehicle.count;
+                        } else {
+                            vehicleMap[vehicle.type] = vehicle.count;
+                        }
+                    });
+                    return vehicleMap;
+                }
+
+                const team1Vehicles = consolidateVehicles(team1.vehicles);
+                const team2Vehicles = consolidateVehicles(team2.vehicles);
+
+                const team1Div = document.createElement('div');
+                team1Div.classList.add('team-container');
+                const team1Name = document.createElement('h3');
+                team1Name.textContent = `${team1.faction}`;
+                team1Div.appendChild(team1Name);
+                const team1VehicleList = document.createElement('ul');
+                team1VehicleList.classList.add('vehicle-list');
+                for (const [type, count] of Object.entries(team1Vehicles)) {
+                    const vehicleItem = document.createElement('li');
+                    vehicleItem.innerHTML = `<span style="float: left; font-size: 12px;">${type}</span><span style="float: right; font-size: 12px;">${count}</span>`;
+                    team1VehicleList.appendChild(vehicleItem);
+                }
+                team1Div.appendChild(team1VehicleList);
+
+                const team2Div = document.createElement('div');
+                team2Div.classList.add('team-container');
+                const team2Name = document.createElement('h3');
+                team2Name.textContent = `${team2.faction}`;
+                team2Div.appendChild(team2Name);
+                const team2VehicleList = document.createElement('ul');
+                team2VehicleList.classList.add('vehicle-list');
+                for (const [type, count] of Object.entries(team2Vehicles)) {
+                    const vehicleItem = document.createElement('li');
+                    vehicleItem.innerHTML = `<span style="float: left; font-size: 12px;">${type}</span><span style="float: right; font-size: 12px;">${count}</span>`;
+                    team2VehicleList.appendChild(vehicleItem);
+                }
+                team2Div.appendChild(team2VehicleList);
+
+                resultsDiv.appendChild(team1Div);
+                resultsDiv.appendChild(team2Div);
+            } else {
+                const notFoundDiv = document.createElement('div');
+                notFoundDiv.classList.add('not-found');
+                notFoundDiv.textContent = '未找到符合指定条件的地图';
+                resultsDiv.appendChild(notFoundDiv);
+            }
+        }
+
+        function updateSliderValue(value) {  // 更新滑块值的 JavaScript 函数
+            document.getElementById("slider-value").textContent = value;  // 获取元素并设置文本内容
+        }
+        function openNewPage() {
+            window.open("https://squadmaps.com/", "_blank");
+        }
+        function setKeyPressOrder(order) {
+            document.getElementById("key-press-order").value = order;
+
+            // 更新显示所选热键的文本
+            var selectedHotkeyText = order === 'backquote' ? '` 键' : 'Home 键';
+            document.getElementById("selected-hotkey").textContent = selectedHotkeyText;
+        }
+        function setRepeatTimes(times) {
+            document.getElementById("repeat-times").value = times;
+            document.getElementById("selected-repeat-times").textContent = times + " 次";
+        }
+        function fetchImage(url) {
+            const img = document.getElementById('image-display');
+            img.src = url;
+            img.alt = '加载中...';
+            img.style.display = 'block';  // 点击后显示图片框
+
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                context.drawImage(img, 0, 0);
+
+                // 取消处理白色部分透明的代码
+                // const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                // const data = imageData.data;
+                // for (let i = 0; i < data.length; i += 4) {
+                //     if (data[i] === 255 && data[i + 1] === 255 && data[i + 2] === 255) {
+                //         data[i + 3] = 0;  // 设置为透明
+                //     }
+                // }
+                // context.putImageData(imageData, 0, 0);
+
+                img.src = canvas.toDataURL();
+            };
+        }
+
+        $(document).ready(function(){
+            $("#sendTextForm").on("submit", function(event){
+                event.preventDefault();
+
+                $.ajax({
+                    url: "/send_text",
+                    type: "POST",
+                    data: $(this).serialize(),
+                    success: function(response){
+                        console.log("Response received:", response);
+                        if(response.success){
+                            $("#send_result").html("<p style='color: white;'>" + response.message + "</p>");
+                        } else {
+                            $("#send_result").html("<p style='color: white;'>" + response.message + "</p>");
+                        }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown){
+                        console.log("AJAX error: " + textStatus + ' : ' + errorThrown);
+                        $("#send_result").html("<p style='color: red;'>请求失败，请重试。</p>");
+                    }
+                });
+            });
+        });
+
+        $(document).ready(function(){
+            $("#toggle-button").on("click", function(event){
+                event.preventDefault();
+
+                $.ajax({
+                    url: "/toggle",
+                    type: "POST",
+                    data: $(this).serialize(),
+                    success: function(response){
+                        console.log("Response received:", response);
+                        if(response.success){
+                            $("#send_result").html("<p style='color: white;'>" + response.message + "</p>");
+                        } else {
+                            $("#send_result").html("<p style='color: white;'>" + response.message + "</p>");
+                        }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown){
+                        console.log("AJAX error: " + textStatus + ' : ' + errorThrown);
+                        $("#send_result").html("<p style='color: red;'>请求失败，请重试。</p>");
+                    }
+                });
+            });
+        });
+
+        var lastTouchEnd = 0;
+        document.documentElement.addEventListener('touchend', function (event) {
+        var now = Date.now();
+        if (now - lastTouchEnd <= 300) {
+            event.preventDefault();
+        }
+        lastTouchEnd = now;
+        }, false);
+        document.documentElement.addEventListener('touchstart', function (event) {
+        if (event.touches.length > 1) {
+            event.preventDefault();
+        }
+        }, false);
+        var _hmt = _hmt || [];
+            (function() {
+            var hm = document.createElement("script");
+            hm.src = "https://hm.baidu.com/hm.js?c6ae047a70bea0ebcedc5325fc741822";
+            var s = document.getElementsByTagName("script")[0]; 
+            s.parentNode.insertBefore(hm, s);
+            })();
+
+    </script>
+</body>
+</html>
